@@ -1,1 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herbal Tea Blend Builder</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-green-50 min-h-screen flex flex-col items-center p-8">
+  <h1 class="text-3xl font-bold mb-6 text-green-900">Herbal Tea Blend Builder</h1>
+
+  <div class="bg-white shadow-md rounded-xl p-6 w-full max-w-xl">
+    <label class="block mb-2 font-semibold">Choose your wellness goal:</label>
+    <select id="goal" class="w-full border border-green-300 rounded p-2 mb-4">
+      <option value="Sleep Support">Sleep Support</option>
+      <option value="Stress & Anxiety">Stress & Anxiety</option>
+      <option value="Hormone Balance">Hormone Balance</option>
+      <option value="Digestive Health">Digestive Health</option>
+      <option value="Immune Boost">Immune Boost</option>
+    </select>
+
+    <label class="block mb-2 font-semibold">Select herbs you have (optional):</label>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <label><input type="checkbox" value="Chamomile" class="herb"> Chamomile</label>
+      <label><input type="checkbox" value="Peppermint" class="herb"> Peppermint</label>
+      <label><input type="checkbox" value="Lemon Balm" class="herb"> Lemon Balm</label>
+      <label><input type="checkbox" value="Purple Dead Nettle" class="herb"> Purple Dead Nettle</label>
+      <label><input type="checkbox" value="Lavender" class="herb"> Lavender</label>
+      <label><input type="checkbox" value="Holy Basil" class="herb"> Holy Basil</label>
+      <label><input type="checkbox" value="Ginger" class="herb"> Ginger</label>
+      <label><input type="checkbox" value="Rose Petals" class="herb"> Rose Petals</label>
+      <label><input type="checkbox" value="White Yarrow" class="herb"> White Yarrow</label>
+    </div>
+
+    <button onclick="generatePDF()" class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-800 w-full">Generate Tea Blend PDF</button>
+  </div>
+
+  <script>
+    const herbUses = {
+      "Sleep Support": ["Chamomile", "Lavender", "Lemon Balm"],
+      "Stress & Anxiety": ["Lemon Balm", "Holy Basil", "Lavender"],
+      "Hormone Balance": ["White Yarrow", "Holy Basil", "Purple Dead Nettle"],
+      "Digestive Health": ["Peppermint", "Ginger", "Chamomile"],
+      "Immune Boost": ["Purple Dead Nettle", "Ginger", "Holy Basil"]
+    };
+
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const goal = document.getElementById('goal').value;
+      const selectedHerbs = Array.from(document.querySelectorAll('.herb:checked')).map(h => h.value);
+      const suggestedHerbs = herbUses[goal].filter(herb => selectedHerbs.length === 0 || selectedHerbs.includes(herb));
+
+      const blendName = `${goal} Blend`;
+      const description = `A gentle tea designed to support: ${goal}`;
+
+      doc.setFontSize(18);
+      doc.text(blendName, 20, 20);
+      doc.setFontSize(12);
+      doc.text(description, 20, 30);
+
+      doc.text('Ingredients:', 20, 45);
+      suggestedHerbs.forEach((herb, i) => {
+        doc.text(`- ${herb} (1 part)`, 25, 55 + i * 10);
+      });
+
+      doc.text('Instructions:', 20, 85);
+      doc.text('Mix equal parts of the listed herbs. Use 1 tbsp per cup. Steep 5-10 mins in hot water.', 25, 95, { maxWidth: 160 });
+
+      doc.text('Notes:', 20, 120);
+      doc.line(20, 122, 190, 122);
+      doc.line(20, 132, 190, 132);
+      doc.line(20, 142, 190, 142);
+
+      doc.save(`${blendName.replace(/\s+/g, '_')}.pdf`);
+    }
+  </script>
+</body>
+</html>
 
