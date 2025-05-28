@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herbal Tea Blend Builder</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; /* Assuming Inter is preferred, fallback to sans-serif */ }
+        .loader {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #10B981; /* Tailwind Green 500 */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal {
+            display: none; position: fixed; z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe; margin: 15% auto; padding: 20px;
+            border: 1px solid #888; width: 90%; max-width: 450px;
+            border-radius: 8px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .modal-close-button {
+            color: #aaa; float: right; font-size: 28px; font-weight: bold;
+        }
+        .modal-close-button:hover,
+        .modal-close-button:focus {
+            color: black; text-decoration: none; cursor: pointer;
+        }
+    </style>
+</head>
+<body class="bg-green-50 min-h-screen flex flex-col items-center p-4 sm:p-8">
+    
+    <div class="bg-white shadow-xl rounded-xl p-6 sm:p-8 w-full max-w-xl">
+        <h1 class="text-3xl font-bold mb-8 text-center text-green-800">Herbal Tea Blend Builder</h1>
+
+        <form id="teaForm">
+            <div class="mb-6">
+                <label for="goal" class="block mb-2 font-semibold text-gray-700">Choose your wellness goal:</label>
+                <select id="goal" class="w-full border border-green-300 rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150">
+                    <option value="Sleep Support">Sleep Support</option>
+                    <option value="Stress & Anxiety">Stress & Anxiety Relief</option>
+                    <option value="Hormone Balance">Hormone Balance Support</option>
+                    <option value="Digestive Health">Digestive Health Aid</option>
+                    <option value="Immune Boost">Immune System Boost</option>
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <label class="block mb-2 font-semibold text-gray-700">Herbs you have available (optional):</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Chamomile" class="herb rounded text-green-600 focus:ring-green-500"> <span>Chamomile</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Peppermint" class="herb rounded text-green-600 focus:ring-green-500"> <span>Peppermint</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Lemon Balm" class="herb rounded text-green-600 focus:ring-green-500"> <span>Lemon Balm</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Lavender" class="herb rounded text-green-600 focus:ring-green-500"> <span>Lavender</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Holy Basil" class="herb rounded text-green-600 focus:ring-green-500"> <span>Holy Basil (Tulsi)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Ginger" class="herb rounded text-green-600 focus:ring-green-500"> <span>Ginger Root</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Rose Petals" class="herb rounded text-green-600 focus:ring-green-500"> <span>Rose Petals</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="White Yarrow" class="herb rounded text-green-600 focus:ring-green-500"> <span>White Yarrow</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Raspberry Leaf" class="herb rounded text-green-600 focus:ring-green-500"> <span>Raspberry Leaf</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Purple Dead Nettle" class="herb rounded text-green-600 focus:ring-green-500"> <span>Purple Dead Nettle</span>
+                    </label>
+                     <label class="flex items-center space-x-2 p-2 border border-gray-200 rounded-md hover:bg-green-50 cursor-pointer">
+                        <input type="checkbox" value="Echinacea" class="herb rounded text-green-600 focus:ring-green-500"> <span>Echinacea</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label for="customHerbsInput" class="block mb-2 font-semibold text-gray-700">Add your own herbs (optional, comma-separated):</label>
+                <input type="text" id="customHerbsInput" class="w-full border border-green-300 rounded-lg p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150" placeholder="e.g., Spearmint, Rose Hips">
+            </div>
+            
+            <div id="loadingIndicator" class="loader" style="display: none;"></div>
+
+            <button type="submit" id="generateButton" class="bg-green-700 text-white px-6 py-3 rounded-lg hover:bg-green-800 w-full transition duration-150 text-lg font-medium">Generate Tea Blend PDF</button>
+        </form>
+    </div>
+
+    <div id="messageModal" class="modal">
+      <div class="modal-content">
+        <span class="modal-close-button" onclick="closeModal()">&times;</span>
+        <p id="modalMessageText" class="text-gray-700 text-lg"></p>
+        <button onclick="closeModal()" class="mt-6 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150">OK</button>
+      </div>
+    </div>
+
+    <footer class="text-center text-sm text-gray-600 mt-10 pb-4">
+        <p>&copy; <span id="currentYear"></span> Homestead Healers. Herbal blends for educational purposes. Consult a healthcare professional for medical advice.</p>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        const messageModal = document.getElementById('messageModal');
+        const modalMessageText = document.getElementById('modalMessageText');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const generateButton = document.getElementById('generateButton');
+
+        function showModal(message) { modalMessageText.textContent = message; messageModal.style.display = "block"; }
+        function closeModal() { messageModal.style.display = "none"; }
+        window.onclick = function(event) { if (event.target == messageModal) { closeModal(); } }
+
+        // Comprehensive Herb Database
+        const herbDatabase = {
+            "Chamomile": { property: "Calming, promotes relaxation, soothes digestion.", goals: ["Sleep Support", "Stress & Anxiety", "Digestive Health"] },
+            "Lavender": { property: "Soothing, eases tension, promotes restful sleep.", goals: ["Sleep Support", "Stress & Anxiety"] },
+            "Lemon Balm": { property: "Uplifting, reduces stress, supports sleep.", goals: ["Sleep Support", "Stress & Anxiety"] },
+            "Peppermint": { property: "Aids digestion, refreshing, relieves nausea.", goals: ["Digestive Health"] },
+            "Purple Dead Nettle": { property: "Traditionally used for astringent, anti-inflammatory, and nutritive properties. Supports overall wellness.", goals: ["Hormone Balance", "Immune Boost"] }, // Consolidated properties
+            "Holy Basil": { property: "Adaptogenic, helps body cope with stress, supports immunity.", goals: ["Stress & Anxiety", "Hormone Balance", "Immune Boost"] },
+            "Ginger": { property: "Warming, aids digestion, anti-inflammatory, immune supportive.", goals: ["Digestive Health", "Immune Boost"] },
+            "Rose Petals": { property: "Gentle, aromatic, adds a lovely flavor and visual appeal.", goals: ["Stress & Anxiety", "Hormone Balance"] },
+            "White Yarrow": { property: "Traditionally used for circulation and women's health.", goals: ["Hormone Balance"] },
+            "Raspberry Leaf": { property: "Traditionally used for uterine tone and women's health.", goals: ["Hormone Balance"]},
+            "Echinacea": { property: "Well-known for immune system support.", goals: ["Immune Boost"]}
+            // "Nettle Leaf" entry is removed
+        };
+
+        const goalDetails = {
+            "Sleep Support": {
+                description: "A gentle blend to encourage restful sleep and calm the mind before bedtime.",
+                classicBlend: ["Chamomile", "Lavender", "Lemon Balm"],
+                suitableHerbs: ["Chamomile", "Lavender", "Lemon Balm"]
+            },
+            "Stress & Anxiety": {
+                description: "A supportive tea to help ease tension, promote a sense of calm, and uplift the spirit.",
+                classicBlend: ["Lemon Balm", "Holy Basil", "Lavender"],
+                suitableHerbs: ["Chamomile", "Lavender", "Lemon Balm", "Holy Basil", "Rose Petals"]
+            },
+            "Hormone Balance": {
+                description: "A nurturing blend traditionally used to support female hormonal equilibrium.",
+                classicBlend: ["Raspberry Leaf", "Purple Dead Nettle", "Holy Basil"], // Updated from Nettle Leaf
+                suitableHerbs: ["White Yarrow", "Holy Basil", "Purple Dead Nettle", "Raspberry Leaf", "Rose Petals"] // Updated from Nettle Leaf
+            },
+            "Digestive Health": {
+                description: "A soothing infusion to aid digestion and comfort the stomach.",
+                classicBlend: ["Peppermint", "Chamomile", "Ginger"],
+                suitableHerbs: ["Peppermint", "Ginger", "Chamomile", "Lemon Balm"]
+            },
+            "Immune Boost": {
+                description: "A fortifying tea to help support and strengthen the body's natural defenses.",
+                classicBlend: ["Echinacea", "Ginger", "Holy Basil"],
+                suitableHerbs: ["Purple Dead Nettle", "Ginger", "Holy Basil", "Echinacea"] // Updated from Nettle Leaf
+            }
+        };
+
+        document.getElementById('teaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            loadingIndicator.style.display = 'block';
+            generateButton.disabled = true;
+            generateButton.classList.add('opacity-50');
+
+            setTimeout(() => {
+                try {
+                    generateAndDownloadPDF();
+                    showModal("Your Herbal Tea Blend PDF has been generated and downloaded!");
+                } catch (e) {
+                    console.error("Error generating PDF:", e);
+                    showModal("Sorry, there was an error generating your PDF. Please try again.");
+                } finally {
+                    loadingIndicator.style.display = 'none';
+                    generateButton.disabled = false;
+                    generateButton.classList.remove('opacity-50');
+                }
+            }, 200); 
+        });
+
+        function generateAndDownloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const selectedGoalValue = document.getElementById('goal').value;
+            const goalInfo = goalDetails[selectedGoalValue];
+            const userSelectedHerbs = Array.from(document.querySelectorAll('.herb:checked')).map(h => h.value);
+            const customHerbsInput = document.getElementById('customHerbsInput').value.trim();
+            const customHerbsArray = customHerbsInput ? customHerbsInput.split(',').map(h => h.trim()).filter(h => h) : [];
+
+
+            let blendHerbs = [];
+            let blendSourceNote = "";
+
+            if (userSelectedHerbs.length > 0) {
+                blendHerbs = userSelectedHerbs.filter(herb => goalInfo.suitableHerbs.includes(herb));
+                if (blendHerbs.length === 0 && customHerbsArray.length === 0) { 
+                    blendHerbs = goalInfo.classicBlend;
+                    blendSourceNote = "(No matching herbs from your selection, using our classic blend for this goal.)";
+                } else if (blendHerbs.length > 0 || customHerbsArray.length > 0) {
+                     blendSourceNote = "(Based on your available and/or custom herbs suitable for this goal.)";
+                }
+            } else if (customHerbsArray.length === 0) { // No pre-selected and no custom herbs
+                blendHerbs = goalInfo.classicBlend;
+                blendSourceNote = "(Our classic blend for this goal.)";
+            }
+            
+            // Add custom herbs to the blendHerbs array
+            customHerbsArray.forEach(customHerb => {
+                if (!blendHerbs.includes(customHerb)) { // Avoid duplicates if already selected from checklist
+                    blendHerbs.push(customHerb);
+                }
+            });
+
+            if (blendHerbs.length === 0) { 
+                showModal("Could not determine a suitable blend. Please select some herbs or try a different goal.");
+                return; 
+            }
+
+            const blendName = `${selectedGoalValue} Tea Blend`;
+            
+            let yPos = 20;
+            const leftMargin = 15;
+            const contentWidth = doc.internal.pageSize.getWidth() - (leftMargin * 2);
+
+            doc.setFontSize(20);
+            doc.setTextColor(34, 81, 67); 
+            doc.text(blendName, doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
+            yPos += 8;
+
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text(goalInfo.description, doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center', maxWidth: contentWidth - 10 });
+            yPos += 10;
+            if (blendSourceNote && userSelectedHerbs.length === 0 && customHerbsArray.length === 0) { // Only show source note if it's purely a classic blend
+                doc.setFontSize(9);
+                doc.text(blendSourceNote, doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' });
+                yPos += 8;
+            }
+
+
+            doc.setFontSize(14);
+            doc.setTextColor(50);
+            doc.text('Your Custom Blend:', leftMargin, yPos);
+            yPos += 8;
+
+            doc.setFontSize(11);
+            doc.setTextColor(0);
+            blendHerbs.forEach((herbName) => {
+                const herbInfo = herbDatabase[herbName];
+                let herbLine = `- ${herbName} (1 part)`;
+                if (herbInfo && herbInfo.property) {
+                    herbLine += `: ${herbInfo.property}`;
+                } else if (customHerbsArray.includes(herbName)) {
+                    herbLine += ": (Custom addition)";
+                }
+                const splitText = doc.splitTextToSize(herbLine, contentWidth - 5); 
+                doc.text(splitText, leftMargin + 5, yPos);
+                yPos += (splitText.length * 5) + 2; 
+            });
+            yPos += 5;
+
+            doc.setFontSize(14);
+            doc.setTextColor(50);
+            doc.text('Brewing Instructions:', leftMargin, yPos);
+            yPos += 8;
+            doc.setFontSize(11);
+            doc.setTextColor(0);
+            const instructions = [
+                "1. Combine equal parts of the dried herbs listed above to create your loose leaf blend.",
+                "2. For one cup of tea: Use 1-2 teaspoons of your herbal blend per 8 oz (1 cup) of hot water.",
+                "3. Water Temperature: Use freshly boiled water (approx. 200-212°F or 93-100°C). For more delicate flowers like chamomile or rose, you can let it cool for a minute.",
+                "4. Steep: Pour hot water over the herbs. Cover your cup or teapot to keep the volatile oils from escaping.",
+                "5. Steep Time: Allow to steep for 5-10 minutes. For root-based teas (like Ginger), you might prefer a longer steep (10-15 mins).",
+                "6. Strain & Enjoy: Strain the herbs and enjoy your freshly brewed tea. Add honey or lemon if desired.",
+                "7. Storage: Store your dried herbal blend in an airtight container away from light and moisture."
+            ];
+            instructions.forEach(inst => {
+                const splitInst = doc.splitTextToSize(inst, contentWidth);
+                doc.text(splitInst, leftMargin, yPos);
+                yPos += (splitInst.length * 5) + 2;
+            });
+            yPos += 5;
+            
+            doc.setFontSize(11);
+            doc.setTextColor(100);
+            doc.text("Tip: Start with 1 part of each herb. After tasting, you can adjust the ratios to your preference!", leftMargin, yPos, {maxWidth: contentWidth});
+            yPos += 10;
+
+
+            doc.setFontSize(14);
+            doc.setTextColor(50);
+            doc.text('Personal Notes:', leftMargin, yPos);
+            yPos += 6;
+            doc.setDrawColor(200); 
+            for (let i = 0; i < 4; i++) {
+                doc.line(leftMargin, yPos, leftMargin + contentWidth, yPos);
+                yPos += 7;
+            }
+            yPos += 5;
+
+            doc.setFontSize(9);
+            doc.setTextColor(120);
+            const disclaimer = "Disclaimer: This herbal blend information is for educational purposes only. These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. Please consult with a qualified healthcare professional before using herbal products, particularly if you are pregnant, nursing, have any medical conditions, or are taking medication.";
+            const splitDisclaimer = doc.splitTextToSize(disclaimer, contentWidth);
+            doc.text(splitDisclaimer, leftMargin, yPos);
+
+            doc.save(`${selectedGoalValue.replace(/\s+/g, '_')}_TeaBlend.pdf`);
+        }
+    </script>
+</body>
+</html>
